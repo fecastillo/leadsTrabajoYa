@@ -1,12 +1,11 @@
 const axios = require('axios');
 const express = require('express');
 const bodyParser = require('body-parser');
-
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Enter the Page Access Token from the previous step
-const FACEBOOK_PAGE_ACCESS_TOKEN = 'EAAV0fG8sI6gBAI4rB3tcqNjgQofGfBP5vfFLGKkSsu6C5PZC5pVCuF36ZCvcBSBSgEFUmWm7k4jnqA2ZC2MaVvaQX16bZCzCwZApEPc2CrsM3ZBtA1L7ZBqu9wIwmiDQrsI4nWIvZBZAFxFVQZCgxY2BBnG4LofHAoIJcwr3ML2LPWIyvVaGKdVmvW';
+const FACEBOOK_PAGE_ACCESS_TOKEN = 'EAAV0fG8sI6gBACLbryjdsx85pYPJfOP4NWKFhpFq3sIhbicblvZBq6x0NLR16BsNZB08tZCoFAvBfmnFPGOKf9luOt99M82CfAldwQ7yiOXawLjx18yQCkJJEMmKv4bdON1chVqCoInxGjPCq94lR2m8YIjxJmWLgHZAc9ZCtDm6RZAoc2T8xW';
 
 // Accept JSON POST body
 app.use(bodyParser.json());
@@ -34,7 +33,8 @@ app.post('/webhook', async (req, res) => {
     for (const entry of req.body.entry) {
         for (const change of entry.changes) {
             // Process new lead (leadgen_id)
-            await processNewLead(change.value.leadgen_id);
+           // await processNewLead(change.value.leadgen_id);
+            await getToken(change.value.leadgen_id);
         }
     }
 
@@ -45,12 +45,52 @@ app.post('/webhook', async (req, res) => {
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
 });
-
-// Process incoming leads
-async function processNewLead(leadId) {
-    let response;
-
+//get tokenZoho
+async function getToken(idLead){
     try {
+        const responseTkn = await axios.post(`https://accounts.zoho.com/oauth/v2/token?refresh_token=1000.3bdd84b7afea88930d8ec9e7cd21f179.d9d7f50995e0e04478351430e9db5ce4&client_id=1000.0TAV98W17RZK77TNPMHQK1O2U804QD&client_secret=b4b1db786375ad85c09593769774186cd09082eaff&grant_type=refresh_token`);
+        token = responseTkn.data.access_token;
+        console.log(token);
+        console.log(idLead);
+        await processNewLead(idLead, token);
+    } catch (error) {
+        console.log(error);
+    }
+}
+//cargar lead en zoho
+async function postZoho(data, tkn){
+    var payLoad = new Object();
+    payLoad.data = new Object();
+    payLoad.data.Fecha_ingreso_dato = new Date().toLocaleDateString();
+    payLoad.data.Origen_dato = "Facebook";
+    payLoad.data.Nombre = data.full_name;
+    payLoad.data.Localidad = data.city;
+    payLoad.data.Telefono = data.phone_number;
+    payLoad.data.Estado = "Sin contactar";
+    payLoad.data.Asistio_entrevista = "Pendiente";
+    var config = {
+        method: 'post',
+        url: 'https://creator.zoho.com/api/v2/autocredito/recursos-humanos-autocredito/form/Datos_a_llamar',
+        headers: { 
+          'Authorization': `Zoho-oauthtoken ${tkn}`,
+          'Content-Type': 'application/json'
+      },
+      data : payLoad
+    };
+      
+      axios(config)
+      .then(function (response) {
+        console.log(JSON.stringify(response.data));
+      })
+      .catch(function (error) {
+        console.log(error.response.data);
+      });
+}
+// Process incoming leads
+async function processNewLead(leadId, tknZoho) {
+    let response;
+    var obj = new Object();
+     try {
         // Get lead details by lead ID from Facebook API
         response = await axios.get(`https://graph.facebook.com/v9.0/${leadId}/?access_token=${FACEBOOK_PAGE_ACCESS_TOKEN}`);
     }
@@ -64,36 +104,9 @@ async function processNewLead(leadId) {
         return console.warn(`An invalid response was received from the Facebook API: ${response}`);
     }
 
-    // Lead fields
-    const leadForm = [];
-
-    // Extract fields
-    for (const field of response.data.field_data) {
-        // Get field name & value
-        const fieldName = field.name;
-        const fieldValue = field.values[0];
-
-        // Store in lead array
-        leadForm.push(`${fieldName}: ${fieldValue}`);
+    // Proceso datos
+    response.data.field_data.forEach(function(element) {obj[element.name] = element.values[0];});
+    obj.phone_number =parseInt(obj.phone_number.substring(obj.phone_number.length - 10));
+    console.log(obj);
+    postZoho(obj, tknZoho);
     }
-
-    // Implode into string with newlines in between fields
-    const leadInfo = leadForm.join('\n');
-
-    // Log to console
-    console.log('A new lead was received!\n', leadInfo);
-
-    // Use a library like "nodemailer" to notify you about the new lead
-    // 
-    // Send plaintext e-mail with nodemailer
-    // transporter.sendMail({
-    //     from: `Admin <admin@example.com>`,
-    //     to: `You <you@example.com>`,
-    //     subject: 'New Lead: ' + name,
-    //     text: new Buffer(leadInfo),
-    //     headers: { 'X-Entity-Ref-ID': 1 }
-    // }, function (err) {
-    //     if (err) return console.log(err);
-    //     console.log('Message sent successfully.');
-    // });
-}
