@@ -61,7 +61,7 @@ async function getToken(idLead){
 async function postZoho(data, tkn){
     var payLoad = new Object();
     payLoad.data = new Object();
-    payLoad.data.Fecha_ingreso_dato = new Date().toLocaleDateString();
+    payLoad.data.Fecha_ingreso_dato = new Date().toLocaleDateString('es-AR');
     payLoad.data.Origen_dato = "Facebook";
     payLoad.data.Nombre = data.full_name;
     payLoad.data.Localidad = data.city;
