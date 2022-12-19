@@ -63,7 +63,7 @@ async function postZoho(data, tkn){
     payLoad.data = new Object();
     payLoad.data.Fecha_ingreso_dato = new Date().toLocaleDateString('es-AR');
     payLoad.data.Origen_dato = "Facebook";
-    payLoad.data.Nombre = data.nombre_completo;
+    payLoad.data.Nombre = data.full_name;
     payLoad.data.Localidad = data.city;
     payLoad.data.Telefono = data.phone_number;
     payLoad.data.Estado = "Sin contactar";
