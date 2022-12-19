@@ -106,7 +106,29 @@ async function processNewLead(leadId, tknZoho) {
 
     // Proceso datos
     response.data.field_data.forEach(function(element) {obj[element.name] = element.values[0];});
-    obj.phone_number =parseInt(obj.phone_number.substring(obj.phone_number.length - 10));
+    obj.phone_number = extractLast10Digits(obj.phone_number);
     console.log(obj);
     postZoho(obj, tknZoho);
     }
+
+
+function extractLast10Digits(phoneNumber) {
+  if (typeof phoneNumber !== 'string') {
+    return undefined;
+  }
+
+  // Eliminar cualquier carácter que no sea un dígito del número de teléfono
+  const digitsOnly = phoneNumber.replace(/[^\d]/g, '');
+
+  // Si el número de teléfono tiene menos de 10 dígitos, devolver undefined
+  if (digitsOnly.length < 10) {
+    return undefined;
+  }
+
+  // Devolver los últimos 10 dígitos del número de teléfono
+  return parseInt(digitsOnly.substr(-10));
+}
+
+// Usar la función extractLast10Digits para extraer los últimos 10 dígitos del número de teléfono
+
+
