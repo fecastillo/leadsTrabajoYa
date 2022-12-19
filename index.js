@@ -93,7 +93,7 @@ async function processNewLead(leadId, tknZoho) {
      try {
         // Get lead details by lead ID from Facebook API
         response = await axios.get(`https://graph.facebook.com/v9.0/${leadId}/?access_token=${FACEBOOK_PAGE_ACCESS_TOKEN}`);
-        console.log(response);
+        //console.log(response);
     }
     catch (err) {
         // Log errors
@@ -109,7 +109,7 @@ async function processNewLead(leadId, tknZoho) {
     response.data.field_data.forEach(function(element) {obj[element.name] = element.values[0];});
     obj.phone_number =parseInt(obj.phone_number.substring(obj.phone_number.length - 10));
     console.log(obj);
-    postZoho(obj, tknZoho);
+   await postZoho(obj, tknZoho);
     }
 
 
