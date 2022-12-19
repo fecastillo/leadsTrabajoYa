@@ -93,13 +93,12 @@ async function processNewLead(leadId, tknZoho) {
      try {
         // Get lead details by lead ID from Facebook API
         response = await axios.get(`https://graph.facebook.com/v9.0/${leadId}/?access_token=${FACEBOOK_PAGE_ACCESS_TOKEN}`);
-        //console.log(response);
+        console.log(response);
     }
     catch (err) {
         // Log errors
         return console.warn(`An invalid response was received from the Facebook API:`, err.response.data ? JSON.stringify(err.response.data) : err.response);
     }
-
     // Ensure valid API response returned
     if (!response.data || (response.data && (response.data.error || !response.data.field_data))) {
         return console.warn(`An invalid response was received from the Facebook API: ${response}`);
