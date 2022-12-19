@@ -78,7 +78,7 @@ async function postZoho(data, tkn){
       data : payLoad
     };
       
-      axios(config)
+     await axios(config)
       .then(function (response) {
         console.log(JSON.stringify(response.data));
       })
