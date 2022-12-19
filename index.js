@@ -63,7 +63,7 @@ async function postZoho(data, tkn){
     payLoad.data = new Object();
     payLoad.data.Fecha_ingreso_dato = new Date().toLocaleDateString('es-AR');
     payLoad.data.Origen_dato = "Facebook";
-    payLoad.data.Nombre = data.full_name;
+    payLoad.data.Nombre = data.nombre_completo;
     payLoad.data.Localidad = data.city;
     payLoad.data.Telefono = data.phone_number;
     payLoad.data.Estado = "Sin contactar";
@@ -106,7 +106,7 @@ async function processNewLead(leadId, tknZoho) {
 
     // Proceso datos
     response.data.field_data.forEach(function(element) {obj[element.name] = element.values[0];});
-    obj.número_de_teléfono = extractLast10Digits(obj.número_de_teléfono);
+    obj.phone_number =parseInt(obj.phone_number.substring(obj.phone_number.length - 10));
     console.log(obj);
     postZoho(obj, tknZoho);
     }
