@@ -106,7 +106,7 @@ async function processNewLead(leadId, tknZoho) {
 
     // Proceso datos
     response.data.field_data.forEach(function(element) {obj[element.name] = element.values[0];});
-    obj.phone_number = extractLast10Digits(obj.phone_number);
+    obj.número_de_teléfono = extractLast10Digits(obj.número_de_teléfono);
     console.log(obj);
     postZoho(obj, tknZoho);
     }
