@@ -1,3 +1,4 @@
+require('dotenv').config();
 const axios = require('axios');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -5,18 +6,16 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Enter the Page Access Token from the previous step
-const FACEBOOK_PAGE_ACCESS_TOKEN = 'EAAV0fG8sI6gBAAShHhXEKkwrzrOESkXnehHGOYrhZBjJ9zJrcFiWi58DDFvRiFxfHbxXwN2OGwUbSuqAPLiABGXvUaOKUgUnPghqfUs0konsEgzy4PNVsaaWfY9el9O18COyMKZAQptu2ZClCwwuRAsRRrf7uPCwJajmRxYaupTZC35YGbjGoPpO2ZBUGgIoaShBFFnGpfgZDZD';
-
+const FACEBOOK_PAGE_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
 // Accept JSON POST body
 app.use(bodyParser.json());
-
 // GET /webhook
 app.get('/webhook', (req, res) => {
     // Facebook sends a GET request
     // To verify that the webhook is set up
     // properly, by sending a special challenge that
     // we need to echo back if the "verify_token" is as specified
-    if (req.query['hub.verify_token'] === 'CUSTOM_WEBHOOK_VERIFY_TOKEN') {
+    if (req.query['hub.verify_token'] === process.env.HUB_VERIFY_TOKEN) {
         res.send(req.query['hub.challenge']);
         return;
     }
@@ -47,8 +46,11 @@ app.listen(port, () => {
 });
 //get tokenZoho
 async function getToken(idLead){
+    const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
+    const CLIENT_ID = process.env.CLIENT_ID;
+    const CLIENT_SECRET = process.env.CLIENT_SECRET;
     try {
-        const responseTkn = await axios.post(`https://accounts.zoho.com/oauth/v2/token?refresh_token=1000.3bdd84b7afea88930d8ec9e7cd21f179.d9d7f50995e0e04478351430e9db5ce4&client_id=1000.0TAV98W17RZK77TNPMHQK1O2U804QD&client_secret=b4b1db786375ad85c09593769774186cd09082eaff&grant_type=refresh_token`);
+        const responseTkn = await axios.post(`https://accounts.zoho.com/oauth/v2/token?refresh_token=${REFRESH_TOKEN}&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=refresh_token`);
         token = responseTkn.data.access_token;
         console.log(token);
         console.log(idLead);

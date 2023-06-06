@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^0.25.0",
     "body-parser": "^1.19.1",
+    "dotenv": "^16.1.4",
     "express": "^4.17.2",
     "ngrok": "^4.3.0"
   }
