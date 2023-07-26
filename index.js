@@ -59,6 +59,7 @@ app.get('/token', async (req, res) => {
     }
     else{
         var data = new Object();
+        await refreshAccessCode();
         data.access_token = await getAccessToken();
         res.send(data);
 }
