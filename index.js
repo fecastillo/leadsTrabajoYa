@@ -53,8 +53,15 @@ app.post('/webhook', async (req, res) => {
 })
 
 app.get('/token', async (req, res) => {
-    await refreshAccessCode();
-    res.send({ success: true });
+    if (req.query['verify_token'] !== process.env.VERIFY_TOKEN) {
+        res.send("No tienes permiso");
+        return;
+    }
+    else{
+        var data = new Object();
+        data.access_token = await getAccessToken();
+        res.send(data);
+}
 });
 
 app.listen(port, () => {
@@ -95,6 +102,7 @@ async function uploadMongo(data){
 //cargar lead en zoho
 async function postZoho(data){
     //descargar access token de mongoDB
+    await refreshAccessCode();
     token = await getAccessToken();
     var payLoad = new Object();
     payLoad.data = new Object();
@@ -147,7 +155,7 @@ async function processNewLead(leadId) {
     response.data.field_data.forEach(function(element) {obj[element.name] = element.values[0];});
     obj.phone_number =parseInt(obj.phone_number.substring(obj.phone_number.length - 10));
     console.log(obj);
-   await postZoho(obj, tknZoho);
+   await postZoho(obj);
     }
 
 
